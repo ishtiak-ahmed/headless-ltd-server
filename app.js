@@ -1,30 +1,41 @@
 
 const express = require('express')
+const cors = require('cors')
 const app = express()
+app.use(cors())
+app.use(express.json())
 const port = 4000;
 
-const data = {
-  root: {
-    folder1: { folder4: {}, folder5: {} },
-    folder2: { folder6: {} },
-    folder3: { folder7: {} }
-  }
-};
+const MongoClient = require('mongodb').MongoClient;
+require('dotenv').config()
+const ObjectId = require('mongodb').ObjectId;
 
-console.log(data)
+// const data = require('data')
+const data = [
+  { _id: "MongoDB", children: [] },
+  { _id: "dbm", children: [] },
+  { _id: "Databases", children: ["MongoDB", "dbm"] },
+  { _id: "Languages", children: [] },
+  { _id: "Programming", children: ["Databases", "Languages"] },
+  { _id: "Books", children: ["Programming"] }
+];
+// console.log(data)
 
 app.get('/', (req, res) => {
   res.send(`<h1>This is for headless server!</h1>`)
 })
-app.get('/directory', (req, res) => {
-  res.send(JSON.stringify(data))
-})
 
-app.post('/add/:folder', (req, res) => {
-  const folder = req.params;
-  res.send(folder)
-})
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.xzynl.mongodb.net/${process.env.DATABASE}?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+client.connect(err => {
+  console.log(err);
+  console.log('database connected')
+  const folderCollection = client.db(`${process.env.DATABASE}`).collection("folders");
+  app.get('/folder/:id', (req, res) => {
+    folderCollection.findOne({ _id: req.params.id }, (err, doc) => {
+      res.send(doc)
+    })
+  })
+});
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
+app.listen(process.env.PORT || port)
