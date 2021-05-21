@@ -31,11 +31,23 @@ client.connect(err => {
   console.log(err);
   console.log('database connected')
   const folderCollection = client.db(`${process.env.DATABASE}`).collection("folders");
+
+  // Get Folder Data
   app.get('/folder/:id', (req, res) => {
     folderCollection.findOne({ _id: req.params.id }, (err, doc) => {
       res.send(doc)
     })
   })
+
+  // Delete Folder
+  app.delete('/delete/:id', (req, res) => {
+
+    folderCollection.deleteOne({ _id: req.params.id }, (err, docs) => {
+      console.log(err)
+      res.send('item deleted')
+    })
+  })
+
 });
 
 app.listen(process.env.PORT || port)
