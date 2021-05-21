@@ -42,10 +42,13 @@ client.connect(err => {
   // Delete Folder
   app.delete('/delete/:id', (req, res) => {
 
-    folderCollection.deleteOne({ _id: req.params.id }, (err, docs) => {
-      console.log(err)
-      res.send('item deleted')
-    })
+    // folderCollection.deleteOne({ _id: req.params.id }, (err, docs) => {
+    //   res.send('item deleted')
+    // })
+    folderCollection.deleteOne({ _id: req.params.id })
+      .then(result => {
+        res.send(result.deletedCount > 0);
+      })
   })
 
 });
